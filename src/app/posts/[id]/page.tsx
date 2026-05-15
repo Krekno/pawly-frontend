@@ -1,7 +1,8 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { postApi } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { postApi, authApi } from "@/lib/api";
 import { PostCard, PostResponse } from "@/components/PostCard";
 import { Button } from "@/components/ui/Button";
 
@@ -11,15 +12,19 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   const [replies, setReplies] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     async function loadPostAndReplies() {
       try {
-        const [postData, repliesData] = await Promise.all([
+        const [postData, repliesData, meRes] = await Promise.all([
           postApi.getById(id),
           postApi.getReplies(id),
+          authApi.getMe().catch(() => null)
         ]);
         setPost(postData);
+        setCurrentUser(meRes);
         
         if (repliesData && repliesData.content) {
           setReplies(repliesData.content);
@@ -36,6 +41,14 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     loadPostAndReplies();
   }, [id]);
 
+  const handleMainPostDeleted = (deletedId: string) => {
+    router.push("/");
+  };
+
+  const handleReplyDeleted = (deletedId: string) => {
+    setReplies((prev) => prev.filter((r) => r.id !== deletedId));
+  };
+
   if (loading) {
     return <div className="text-center py-10 text-muted-foreground">Loading...</div>;
   }
@@ -46,7 +59,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div className="flex flex-col gap-6 max-w-xl mx-auto">
-      <PostCard post={post} />
+      <PostCard post={post} currentUser={currentUser} onDelete={handleMainPostDeleted} />
       
       <div className="mt-4 border-t border-border pt-6">
         <div className="flex items-center justify-between mb-4">
@@ -58,7 +71,14 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
           {replies.length === 0 ? (
             <p className="text-sm text-muted-foreground">No replies yet.</p>
           ) : (
-            replies.map((reply) => <PostCard key={reply.id} post={reply} />)
+            replies.map((reply) => (
+              <PostCard 
+                key={reply.id} 
+                post={reply} 
+                currentUser={currentUser} 
+                onDelete={handleReplyDeleted} 
+              />
+            ))
           )}
         </div>
       </div>

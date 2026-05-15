@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { postApi } from "@/lib/api";
+import { postApi, authApi } from "@/lib/api";
 import { PostCard, PostResponse } from "@/components/PostCard";
 import { Button } from "@/components/ui/Button";
 import { CreatePostModal } from "@/components/CreatePostModal";
@@ -11,16 +11,23 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
     async function loadFeed() {
       try {
-        const response = await postApi.getFeed();
+        const [feedRes, meRes] = await Promise.all([
+          postApi.getFeed(),
+          authApi.getMe().catch(() => null)
+        ]);
+        
+        setCurrentUser(meRes);
+
         // Assuming the response is a Page<PostResponse> with `content` array
-        if (response && response.content) {
-          setPosts(response.content);
-        } else if (Array.isArray(response)) {
-          setPosts(response);
+        if (feedRes && feedRes.content) {
+          setPosts(feedRes.content);
+        } else if (Array.isArray(feedRes)) {
+          setPosts(feedRes);
         }
       } catch (err: any) {
         setError(err.message || "Failed to load feed.");
@@ -34,6 +41,10 @@ export default function Home() {
 
   const handlePostCreated = (newPost: PostResponse) => {
     setPosts((prevPosts) => [newPost, ...prevPosts]);
+  };
+
+  const handlePostDeleted = (deletedId: string) => {
+    setPosts((prevPosts) => prevPosts.filter((p) => p.id !== deletedId));
   };
 
   if (loading) {
@@ -61,7 +72,14 @@ export default function Home() {
           {posts.length === 0 ? (
             <p className="text-center text-muted-foreground py-10">No posts yet.</p>
           ) : (
-            posts.map((post) => <PostCard key={post.id} post={post} />)
+            posts.map((post) => (
+              <PostCard 
+                key={post.id} 
+                post={post} 
+                currentUser={currentUser} 
+                onDelete={handlePostDeleted} 
+              />
+            ))
           )}
         </div>
       </div>

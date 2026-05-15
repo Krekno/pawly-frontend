@@ -1,7 +1,8 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { userApi } from "@/lib/api";
+import { userApi, authApi } from "@/lib/api";
+import { PostCard, PostResponse } from "@/components/PostCard";
 import { Button } from "@/components/ui/Button";
 
 interface UserProfile {
@@ -13,6 +14,7 @@ interface UserProfile {
   followerCount: number;
   followingCount: number;
   isFollowing: boolean;
+  posts?: PostResponse[];
 }
 
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -20,12 +22,17 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
     async function loadProfile() {
       try {
-        const data = await userApi.getProfile(username);
+        const [data, meRes] = await Promise.all([
+          userApi.getProfile(username),
+          authApi.getMe().catch(() => null)
+        ]);
         setProfile(data);
+        setCurrentUser(meRes);
       } catch (err: any) {
         setError(err.message || "Failed to load profile.");
       } finally {
@@ -51,6 +58,14 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
     }
   };
 
+  const handlePostDeleted = (deletedId: string) => {
+    if (!profile) return;
+    setProfile({
+      ...profile,
+      posts: profile.posts?.filter(p => p.id !== deletedId)
+    });
+  };
+
   if (loading) {
     return <div className="text-center py-10 text-muted-foreground">Loading profile...</div>;
   }
@@ -62,8 +77,12 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   return (
     <div className="max-w-xl mx-auto flex flex-col gap-6">
       <div className="p-6 border border-border rounded-lg bg-background flex flex-col items-center text-center gap-4">
-        <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center text-3xl font-bold">
-          {profile.username.charAt(0).toUpperCase()}
+        <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center text-3xl font-bold overflow-hidden border border-border shrink-0">
+          {profile.profilePictureUrl ? (
+            <img src={profile.profilePictureUrl} alt={profile.username} className="w-full h-full object-cover" />
+          ) : (
+            profile.username.charAt(0).toUpperCase()
+          )}
         </div>
         
         <div>
@@ -91,6 +110,22 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         >
           {profile.isFollowing ? "Unfollow" : "Follow"}
         </Button>
+      </div>
+
+      <div className="flex flex-col gap-4 mt-2">
+        <h2 className="text-xl font-bold px-2">Posts</h2>
+        {profile.posts && profile.posts.length > 0 ? (
+          profile.posts.map((post) => (
+            <PostCard 
+              key={post.id} 
+              post={post} 
+              currentUser={currentUser} 
+              onDelete={handlePostDeleted} 
+            />
+          ))
+        ) : (
+          <p className="text-center text-muted-foreground py-8">No posts yet.</p>
+        )}
       </div>
     </div>
   );

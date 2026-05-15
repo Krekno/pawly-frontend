@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MessageCircle, Heart } from "lucide-react";
+import { MessageCircle, Heart, Trash2 } from "lucide-react";
 import { postApi } from "@/lib/api";
 
 export interface PostResponse {
@@ -21,10 +21,11 @@ export interface PostResponse {
   deleted: boolean;
 }
 
-export function PostCard({ post }: { post: PostResponse }) {
+export function PostCard({ post, currentUser, onDelete }: { post: PostResponse, currentUser?: any, onDelete?: (id: string) => void }) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   if (post.deleted) {
     return (
@@ -55,13 +56,29 @@ export function PostCard({ post }: { post: PostResponse }) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    setDeleting(true);
+    try {
+      await postApi.delete(post.id);
+      if (onDelete) onDelete(post.id);
+    } catch (err) {
+      console.error("Failed to delete post", err);
+      setDeleting(false); // only re-enable if failed, otherwise component might unmount
+    }
+  };
+
   return (
     <article className="p-4 border border-border rounded-lg bg-background hover:border-primary transition-colors flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-bold">
-          {post.author.username.charAt(0).toUpperCase()}
+        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-bold overflow-hidden shrink-0">
+          {post.author.profilePictureUrl ? (
+            <img src={post.author.profilePictureUrl} alt={post.author.username} className="w-full h-full object-cover" />
+          ) : (
+            post.author.username.charAt(0).toUpperCase()
+          )}
         </div>
-        <div>
+        <div className="flex-1">
           <Link href={`/users/${post.author.username}`} className="font-semibold hover:underline">
             {post.author.username}
           </Link>
@@ -69,6 +86,16 @@ export function PostCard({ post }: { post: PostResponse }) {
             {new Date(post.createdAt).toLocaleDateString()}
           </div>
         </div>
+        {currentUser?.username === post.author.username && (
+          <button 
+            onClick={handleDelete}
+            disabled={deleting}
+            className="text-muted-foreground hover:text-red-500 transition-colors p-2"
+            title="Delete post"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       <p className="text-sm">{post.content}</p>

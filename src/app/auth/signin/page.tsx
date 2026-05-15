@@ -22,7 +22,7 @@ export default function SignIn() {
 
     try {
       await authApi.signin(data);
-      router.push("/");
+      window.location.href = "/";
     } catch (err: any) {
       setError(err.message || "Sign in failed");
     } finally {

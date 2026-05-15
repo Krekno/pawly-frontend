@@ -93,6 +93,7 @@ async function fetchApi(endpoint: string, options: RequestInit = {}): Promise<an
 // ----------------------
 export const authApi = {
   signup: (data: any) => fetchApi("/auth/signup", { method: "POST", body: JSON.stringify(data) }),
+  update: (data: any) => fetchApi("/auth/update", { method: "PATCH", body: JSON.stringify(data) }),
   signin: (data: any) => fetchApi("/auth/signin", { method: "POST", body: JSON.stringify(data) }),
   signout: () => fetchApi("/auth/signout", { method: "POST" }),
   getMe: () => fetchApi("/auth/me", { method: "GET" }),
