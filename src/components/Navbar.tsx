@@ -12,9 +12,19 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
+  const hasRefreshed = useRef(false);
 
   useEffect(() => {
     async function fetchUser() {
+      if (!hasRefreshed.current) {
+        try {
+          await authApi.refresh();
+        } catch (err) {
+          // Ignore refresh errors on first enter
+        }
+        hasRefreshed.current = true;
+      }
+
       try {
         const me = await authApi.getMe();
         setUser(me);
