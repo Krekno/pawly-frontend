@@ -5,24 +5,30 @@ import Link from "next/link";
 import { MessageCircle, Heart, Trash2 } from "lucide-react";
 import { postApi } from "@/lib/api";
 
+export interface UserSummaryDto {
+  id: string;
+  username: string;
+  profilePictureUrl?: string;
+}
+
 export interface PostResponse {
   id: string;
   content: string;
   imageUrl?: string;
   createdAt: string;
-  author: {
-    id: string;
-    username: string;
-    profilePictureUrl?: string;
-  };
+  author: UserSummaryDto;
   likeCount: number;
+  likedBy: UserSummaryDto[];
   replyCount: number;
   parentPostId?: string;
   deleted: boolean;
 }
 
 export function PostCard({ post, currentUser, onDelete }: { post: PostResponse, currentUser?: any, onDelete?: (id: string) => void }) {
-  const [liked, setLiked] = useState(false);
+  const isLikedByCurrentUser = currentUser
+    ? post.likedBy?.some(u => u.id === currentUser.id || u.username === currentUser.username)
+    : false;
+  const [liked, setLiked] = useState(isLikedByCurrentUser);
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
