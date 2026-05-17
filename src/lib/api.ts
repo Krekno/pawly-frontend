@@ -106,6 +106,10 @@ export const authApi = {
 export const postApi = {
   getFeed: () => fetchApi("/posts", { method: "GET" }),
   create: (data: any) => fetchApi("/posts", { method: "POST", body: JSON.stringify(data) }),
+  createReply: (id: string, data: any) => fetchApi("/posts", {
+    method: "POST",
+    body: JSON.stringify({ ...data, parentPostId: id }),
+  }),
   getById: (id: string) => fetchApi(`/posts/${id}`, { method: "GET" }),
   getReplies: (id: string) => fetchApi(`/posts/${id}/replies`, { method: "GET" }),
   like: (id: string) => fetchApi(`/posts/${id}/like`, { method: "POST" }),
