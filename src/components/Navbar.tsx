@@ -79,7 +79,8 @@ export function Navbar() {
   return (
     <header className="border-b border-border bg-background sticky top-0 z-10">
       <div className="container mx-auto max-w-2xl px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="font-bold text-xl tracking-tight">
+        <Link href="/" className="font-bold text-xl tracking-tight flex items-center gap-2">
+          <img src="favicon.ico" alt="paw logo" className="w-8 h-8" />
           Pawly
         </Link>
         <div className="flex items-center gap-4">
