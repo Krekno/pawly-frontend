@@ -23,6 +23,7 @@ This document outlines all the available API endpoints in the `pawly-backend` ap
 | `GET` | `/api/posts` | `Page<PostResponse>` | Returns a paginated feed of posts. |
 | `GET` | `/api/posts/{id}` | [`PostResponse`](#postresponse-dto) | Returns a specific post by its UUID. |
 | `GET` | `/api/posts/{id}/replies` | `Page<PostResponse>` | Returns a paginated list of replies to a specific post. |
+| `GET` | `/api/posts/search?q={query}` | `Page<PostResponse>` | Returns a paginated list of posts matching the search query. |
 | `POST` | `/api/posts/{id}/like` | `String` | Returns `"Post liked"` |
 | `DELETE`| `/api/posts/{id}/like` | `String` | Returns `"Post unliked"` |
 | `DELETE`| `/api/posts/{id}` | `String` | Returns `"Post deleted successfully"` |
@@ -33,6 +34,7 @@ This document outlines all the available API endpoints in the `pawly-backend` ap
 
 | Method | Endpoint | Returns | Description |
 | :--- | :--- | :--- | :--- |
+| `GET` | `/api/users/search?q={query}` | `Page<UserSummaryDto>` | Returns a paginated list of users whose usernames match the search query. |
 | `GET` | `/api/users/{username}` | [`UserProfileResponse`](#userprofileresponse-dto) | Returns the profile details for the specified username. |
 | `POST` | `/api/users/{id}/follow` | `String` | Returns `"Successfully followed user"` |
 | `DELETE`| `/api/users/{id}/follow` | `String` | Returns `"Successfully unfollowed user"` |

@@ -9,6 +9,7 @@ import { authApi } from "@/lib/api";
 export function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -76,6 +77,14 @@ export function Navbar() {
     router.push("/auth/signin");
   }
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
+  };
+
   return (
     <header className="border-b border-border bg-background sticky top-0 z-10">
       <div className="container mx-auto max-w-2xl px-4 h-16 flex items-center justify-between">
@@ -83,6 +92,22 @@ export function Navbar() {
           <img src="favicon.ico" alt="paw logo" className="w-8 h-8" />
           Pawly
         </Link>
+        
+        <form onSubmit={handleSearch} className="flex-1 max-w-sm mx-4 relative hidden sm:block">
+          <input
+            type="text"
+            placeholder="Search users or posts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-muted/50 border border-border rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+          />
+          <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        </form>
+
         <div className="flex items-center gap-4">
           {user ? (
             <div className="relative" ref={menuRef}>
