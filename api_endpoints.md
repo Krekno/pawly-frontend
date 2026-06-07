@@ -21,6 +21,7 @@ This document outlines all the available API endpoints in the `pawly-backend` ap
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/posts` | [`PostResponse`](#postresponse-dto) | Returns the newly created post. |
 | `GET` | `/api/posts` | `Page<PostResponse>` | Returns a paginated feed of posts. |
+| `GET` | `/api/posts/following` | `Page<PostResponse>` | Returns a paginated feed of posts from followed users. |
 | `GET` | `/api/posts/{id}` | [`PostResponse`](#postresponse-dto) | Returns a specific post by its UUID. |
 | `GET` | `/api/posts/{id}/replies` | `Page<PostResponse>` | Returns a paginated list of replies to a specific post. |
 | `GET` | `/api/posts/search?q={query}` | `Page<PostResponse>` | Returns a paginated list of posts matching the search query. |

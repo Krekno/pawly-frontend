@@ -1,4 +1,4 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"
+export const API_URL = /*process.env.NEXT_PUBLIC_API_URL ||*/ "http://localhost:8080/api"
 
 let isRefreshing = false
 let refreshSubscribers: ((error: any) => void)[] = []
@@ -105,6 +105,7 @@ export const authApi = {
 // ----------------------
 export const postApi = {
 	getFeed: () => fetchApi("/posts", { method: "GET" }),
+	getFollowingFeed: () => fetchApi("/posts/following", { method: "GET" }),
 	create: (data: any) => fetchApi("/posts", { method: "POST", body: JSON.stringify(data) }),
 	createReply: (id: string, data: any) =>
 		fetchApi("/posts", {

@@ -103,13 +103,15 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
           </div>
         </div>
 
-        <Button 
-          variant={profile.isFollowing ? "outline" : "default"} 
-          className="mt-4 w-32"
-          onClick={toggleFollow}
-        >
-          {profile.isFollowing ? "Unfollow" : "Follow"}
-        </Button>
+        {currentUser?.username !== profile.username && (
+          <Button 
+            variant={profile.isFollowing ? "outline" : "default"} 
+            className="mt-4 w-32"
+            onClick={toggleFollow}
+          >
+            {profile.isFollowing ? "Unfollow" : "Follow"}
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-col gap-4 mt-2">
