@@ -38,7 +38,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         ]);
 
         if (data) {
-          data.isFollowing = data.isFollowing ?? data.following ?? false;
+          data.following = data.following ?? data.following ?? false;
         }
 
         setProfile(data);
@@ -56,12 +56,12 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const toggleFollow = async () => {
     if (!profile) return;
     try {
-      if (profile.isFollowing) {
+      if (profile.following) {
         await userApi.unfollow(profile.id);
-        setProfile({ ...profile, isFollowing: false, followerCount: profile.followerCount - 1 });
+        setProfile({ ...profile, following: false, followerCount: profile.followerCount - 1 });
       } else {
         await userApi.follow(profile.id);
-        setProfile({ ...profile, isFollowing: true, followerCount: profile.followerCount + 1 });
+        setProfile({ ...profile, following: true, followerCount: profile.followerCount + 1 });
       }
     } catch (err) {
       console.error(err);
@@ -143,11 +143,11 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
         {currentUser?.username !== profile.username && (
           <Button
-            variant={profile.isFollowing ? "outline" : "default"}
+            variant={profile.following ? "outline" : "default"}
             className="mt-4 w-32"
             onClick={toggleFollow}
           >
-            {profile.isFollowing ? "Unfollow" : "Follow"}
+            {profile.following ? "Unfollow" : "Follow"}
           </Button>
         )}
       </div>
